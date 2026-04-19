@@ -16,7 +16,7 @@ spring:
     defer-datasource-initialization: true
   sql:
     init:
-      mode: never
+      mode: always
   ai:
     openai:
       api-key: ${GROQ_API_KEY}
