@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            font-size: 13px;
+        }
+
+
+
+        /* Encabezado */
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid #0a7d4f;
+            padding-bottom: 10px;
+        }
+
+        .logo {
+            width: 110px;
+        }
+
+        .entity-info {
+            flex: 1;
+            text-align: center;
+        }
+
+        .entity-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0a7d4f;
+        }
+
+        /* Radicado */
+        .radicado-box {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f2f8f5;
+            border-left: 5px solid #0a7d4f;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .label {
+            background: #f4f4f4;
+            font-weight: bold;
+            width: 35%;
+        }
+
+        /* Secciones */
+        .section-title {
+            margin-top: 25px;
+            font-weight: bold;
+            font-size: 15px;
+            border-bottom: 2px solid #0a7d4f;
+            padding-bottom: 5px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            font-size: 11px;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            color: gray;
+        }
+
+        .qr {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+<div class="header">
+    <img src="classpath:/static/logo.png" class="logo"/>
+    <div class="entity-info">
+        <div class="entity-name">PQRSMART S.A.S</div>
+        Nit: 900123456-7<br/>
+        Cartagena - Colombia
+    </div>
+</div>
+
+<div class="radicado-box">
+    RADICADO No: <span th:text="${radicado}"></span><br/>
+    Fecha: <span th:text="${fecha}"></span>
+</div>
+
+<div class="section-title">DATOS DEL SOLICITANTE</div>
+
+<table>
+    <tr>
+        <td class="label">Nombre</td>
+        <td th:text="${usuario}"></td>
+    </tr>
+    <tr>
+        <td class="label">Tipo de Solicitud</td>
+        <td th:text="${tipo}"></td>
+    </tr>
+    <tr>
+        <td class="label">Categoría</td>
+        <td th:text="${categoria}"></td>
+    </tr>
+    <tr>
+        <td class="label">Estado</td>
+        <td th:text="${estado}"></td>
+    </tr>
+</table>
+
+<div class="section-title">DESCRIPCIÓN DE LA SOLICITUD</div>
+<p th:text="${descripcion}"></p>
+
+
+
+<div class="footer">
+    Documento generado automáticamente por el sistema PQRSmart.<br/>
+    © 2026 - Todos los derechos reservados.
+</div>
+
+</body>
+</html>
