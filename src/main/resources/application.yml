@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
+    url: jdbc:postgresql://postgres.railway.internal:5432/railway
+    username: postgres
+    password: nMJRaDFeAMEqWvmfSOrLTkfmaJsOFEEu
     driver-class-name: org.postgresql.Driver
   servlet:
     multipart:

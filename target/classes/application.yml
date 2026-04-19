@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-d7ii92egvqtc73998qk0-a.oregon-postgres.render.com:5432/pqrsmartdb?sslmode=require
-    username: pqrsmartdbpostgress
-    password: DoV39gy5mVN93LgAWyl7ugsGzNpwYHM0
+    url: jdbc:postgresql://postgres.railway.internal:5432/railway
+    username: postgres
+    password: nMJRaDFeAMEqWvmfSOrLTkfmaJsOFEEu
     driver-class-name: org.postgresql.Driver
   servlet:
     multipart:
@@ -16,7 +16,7 @@ spring:
     defer-datasource-initialization: true
   sql:
     init:
-      mode: never
+      mode: always
   ai:
     openai:
       api-key: ${GROQ_API_KEY}
