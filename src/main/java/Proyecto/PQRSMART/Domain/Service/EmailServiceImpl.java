@@ -1,6 +1,10 @@
 package Proyecto.PQRSMART.Domain.Service;
 
 import Proyecto.PQRSMART.Domain.Service.Interfaces.IEmailService;
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.Email;
+import com.resend.services.emails.model.Attachment;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,19 +34,27 @@ public class EmailServiceImpl implements IEmailService {
     @Value("${supabase.bucket.public.url}")
     private String supabasePublicUrl;
 
+    @Value("${resend.api.key}")
+    private String resendApiKey;
+
     @Override
     public void sendEmails(String[] toUser, String subject, String message) {
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            helper.setFrom("pqrsmart@gmail.com");
-            helper.setTo(toUser);
-            helper.setSubject(subject);
-            helper.setText(message, true);  // Aquí se especifica que el contenido es HTML
-            mailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Error enviando correo: " + e.getMessage(), e);
-            // Manejar la excepción apropiadamente según tu aplicación
+            Resend resend = new Resend(resendApiKey); // 👈 pega tu API KEY
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from("PQRSmart <onboarding@resend.dev>") // ⚠️ importante
+                    .to(toUser)
+                    .subject(subject)
+                    .html(message)
+                    .build();
+
+            resend.emails().send(params);
+
+            System.out.println("✅ Correo enviado correctamente");
+
+        } catch (Exception e) {
+            throw new RuntimeException("❌ Error enviando correo: " + e.getMessage(), e);
         }
     }
     public void sendEmailWithPdf(String to, String subject, String body, byte[] pdfData, String archivoRuta) {
