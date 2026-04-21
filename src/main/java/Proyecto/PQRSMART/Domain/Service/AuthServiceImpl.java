@@ -238,7 +238,7 @@ public class AuthServiceImpl implements AuthService {
                 .number(request.getNumber())
                 .dependence(request.getDependence())
                 .build();
-        userRepository.save(user);
+
         var jwtToken = jwtService.genereteToken((UserDetails) user);
         // Enviar correo electrónico de activación
         String activationLink1 = "https://pqrsmartback-production.up.railway.app/api/Auth/verifyEmail/" +jwtToken;
@@ -304,11 +304,13 @@ public class AuthServiceImpl implements AuthService {
                 user.getName(), user.getLastName(), activationLink1
         );
 
+
         emailService.sendEmails(
                 new String[]{user.getEmail()},
                 "Confirma tu correo",
                 messageHtml
         );
+        userRepository.save(user);
         return AuthResponse.builder()
                 .token(jwtToken).build();
     }
