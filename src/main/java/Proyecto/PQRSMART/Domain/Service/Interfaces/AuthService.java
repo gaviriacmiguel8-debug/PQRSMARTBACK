@@ -11,4 +11,5 @@ public interface AuthService {
     AuthResponse registerUser (RegisterRequest Request );
     AuthResponse authenticate (AuthenticationRequest Request );
     User getCurrentUser(Authentication authentication);
+     AuthResponse registerUserApp(RegisterRequest request);
 }

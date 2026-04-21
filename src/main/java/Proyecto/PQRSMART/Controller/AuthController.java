@@ -13,6 +13,7 @@ import Proyecto.PQRSMART.Persistence.Entity.User;
 import Proyecto.PQRSMART.Persistence.Repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -91,6 +93,52 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor.");
         }
 
+    }
+
+
+    @PostMapping("/registerUserApp")
+    public ResponseEntity<?> registerUserApp(@RequestBody RegisterRequest request){
+        try {
+            // Intentar registrar al usuario
+            AuthResponse authResponse = authService.registerUserApp(request);
+            return ResponseEntity.ok(authResponse);
+        } catch (Exceptions.UserAlreadyExistsException e) {
+            // Manejar usuario duplicado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El usuario ya existe.");
+        } catch (Exceptions.EmailAlreadyExistsException e) {
+            // Manejar email duplicado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El correo electrónico ya está en uso.");
+        } catch (Exceptions.NumberAlreadyExistsException e) {
+            // Manejar número de identificación duplicado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El número ya está registrado.");
+        } catch (Exceptions.IdentificationNumberAlreadyExistsException e) {
+            // Manejar número de identificación duplicado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El número de identificación ya está registrado.");
+        } catch (Exception e) {
+            // Manejar otros errores
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor.");
+        }
+
+    }
+
+    @GetMapping("/verifyEmail/{token}")
+    public ResponseEntity<Void> verifyEmail(@PathVariable String token) {
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            if (jwtService.validateToken(token)) {
+                String username = jwtService.getUserName(token);
+                userService.verifyUser(username); // Implementa la lógica para marcar al usuario como verificado
+                // Redirige a la app con éxito
+                headers.setLocation(URI.create("pqrsmart://auth/verified?success=true"));
+            } else {
+                // Redirige a la app con error
+                headers.setLocation(URI.create("pqrsmart://auth/verified?success=false"));
+            }
+        } catch (Exception e) {
+            // Redirige a la app con error
+            headers.setLocation(URI.create("pqrsmart://auth/verified?success=false"));
+        }
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @PostMapping("/authenticate")

@@ -69,9 +69,11 @@ import java.util.List;
         return new OrRequestMatcher(
           new AntPathRequestMatcher("/api/greeting/sayHelloPublic"),
                 new AntPathRequestMatcher("/api/auth/registerUser"),
+                new AntPathRequestMatcher("/api/auth/registerUserApp"),
                 new AntPathRequestMatcher("/api/auth/authenticate"),
                 new AntPathRequestMatcher("/api/auth/activate"),
                 new AntPathRequestMatcher("/api/auth/verify-email"),
+                new AntPathRequestMatcher("/api/auth/verifyEmail/**"),
                 new AntPathRequestMatcher("/api/identification_type/get"),
                 new AntPathRequestMatcher("/api/person_type/get"),
                 new AntPathRequestMatcher("/api/chat/**"),
