@@ -46,7 +46,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> Register(@RequestBody RegisterRequest request){
+    public ResponseEntity<?> Register(@RequestBody RegisterRequest request) {
         try {
             // Intentar registrar al usuario
             AuthResponse authResponse = authService.register(request);
@@ -71,7 +71,7 @@ public class AuthController {
 
 
     @PostMapping("/registerUser")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request){
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
         try {
             // Intentar registrar al usuario
             AuthResponse authResponse = authService.registerUser(request);
@@ -97,7 +97,7 @@ public class AuthController {
 
 
     @PostMapping("/registerUserApp")
-    public ResponseEntity<?> registerUserApp(@RequestBody RegisterRequest request){
+    public ResponseEntity<?> registerUserApp(@RequestBody RegisterRequest request) {
         try {
             // Intentar registrar al usuario
             AuthResponse authResponse = authService.registerUserApp(request);
@@ -116,6 +116,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("El número de identificación ya está registrado.");
         } catch (Exception e) {
             // Manejar otros errores
+            System.out.println(e + "#############################################################################################################################################################");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor.");
         }
 
@@ -213,7 +214,7 @@ public class AuthController {
     @PostMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestBody Map<String, String> payload) {
         try {
-            String token=payload.get("token");
+            String token = payload.get("token");
             if (jwtService.validateToken(token)) {
                 String username = jwtService.getUserName(token);
                 userService.verifyUser(username); // Implementa la lógica para marcar al usuario como verificado
@@ -221,10 +222,9 @@ public class AuthController {
             } else {
                 return ResponseEntity.badRequest().body("Enlace de verificación inválido o expirado.");
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
-            return ResponseEntity.internalServerError().body("error"+e);
+            return ResponseEntity.internalServerError().body("error" + e);
         }
 
     }

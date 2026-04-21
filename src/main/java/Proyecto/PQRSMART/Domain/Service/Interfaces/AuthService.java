@@ -7,9 +7,13 @@ import Proyecto.PQRSMART.Persistence.Entity.User;
 import org.springframework.security.core.Authentication;
 
 public interface AuthService {
-    AuthResponse register (RegisterRequest Request );
-    AuthResponse registerUser (RegisterRequest Request );
-    AuthResponse authenticate (AuthenticationRequest Request );
+    AuthResponse register(RegisterRequest Request);
+
+    AuthResponse registerUser(RegisterRequest Request);
+
+    AuthResponse authenticate(AuthenticationRequest Request);
+
     User getCurrentUser(Authentication authentication);
-     AuthResponse registerUserApp(RegisterRequest request);
+
+    AuthResponse registerUserApp(RegisterRequest request);
 }
