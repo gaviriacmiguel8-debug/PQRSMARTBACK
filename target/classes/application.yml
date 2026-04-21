@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres.railway.internal:5432/railway
+    username: postgres
+    password: nMJRaDFeAMEqWvmfSOrLTkfmaJsOFEEu
+    driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: never
+  ai:
+    openai:
+      api-key: ${GROQ_API_KEY}
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: llama-3.1-8b-instant
+          temperature: 0.7
+          top_p: 1
+server:
+  port: 8080
+
+supabase:
+  bucket:
+    public:
+      url: "https://dckjzopndipyyyqroqgt.supabase.co/storage/v1/object/public/pqrs-files/"

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            font-size:12px;
+        }
+
+        header{
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th, td{
+            border:1px solid #ccc;
+            padding:6px;
+            text-align:left;
+        }
+
+        th{
+            background:#f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>Reporte de Usuarios</h2>
+    <p>Total usuarios: <span th:text="${totalUsuarios}"></span></p>
+</header>
+
+<table>
+
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Usuario</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th>Tipo Identificación</th>
+        <th>N° Identificación</th>
+        <th>Teléfono</th>
+        <th>Tipo Persona</th>
+        <th>Dependencia</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    <tr th:each="user : ${usuarios}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.name}"></td>
+        <td th:text="${user.lastName}"></td>
+        <td th:text="${user.user}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.role}"></td>
+        <td th:text="${user.stateUser.nameStateUser}"></td>
+        <td th:text="${user.identificationType.nameIdentificationType}"></td>
+        <td th:text="${user.identificationNumber}"></td>
+        <td th:text="${user.number}"></td>
+        <td th:text="${user.personType.namePersonType}"></td>
+        <td th:text="${user.dependence.nameDependence}"></td>
+    </tr>
+
+    </tbody>
+
+</table>
+
+</body>
+</html>
