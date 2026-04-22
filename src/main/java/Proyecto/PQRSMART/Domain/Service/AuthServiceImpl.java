@@ -241,7 +241,7 @@ public class AuthServiceImpl implements AuthService {
 
         var jwtToken = jwtService.genereteToken((UserDetails) user);
         // Enviar correo electrónico de activación
-        String activationLink1 = "https://pqrsmartback-production.up.railway.app/api/Auth/verifyEmail/" +jwtToken;
+        String activationLink1 = "https://pqrsmartback-production.up.railway.app/api/auth/verifyEmail/" +jwtToken;
         String messageHtml = String.format(
                 "<!DOCTYPE html>" +
                         "<html lang='es'>" +

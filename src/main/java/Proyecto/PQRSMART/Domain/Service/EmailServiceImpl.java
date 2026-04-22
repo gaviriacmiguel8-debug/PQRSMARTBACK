@@ -39,22 +39,18 @@ public class EmailServiceImpl implements IEmailService {
 
     @Override
     public void sendEmails(String[] toUser, String subject, String message) {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
         try {
-            Resend resend = new Resend(resendApiKey); // 👈 pega tu API KEY
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom("miguelgaviriam.8@gmail.com");
+            helper.setTo(toUser);
+            helper.setSubject(subject);
+            helper.setText(message, true);  // Aquí se especifica que el contenido es HTML
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
 
-            CreateEmailOptions params = CreateEmailOptions.builder()
-                    .from("PQRSmart <onboarding@resend.dev>") // ⚠️ importante
-                    .to(toUser)
-                    .subject(subject)
-                    .html(message)
-                    .build();
-
-            resend.emails().send(params);
-
-            System.out.println("✅ Correo enviado correctamente");
-
-        } catch (Exception e) {
             throw new RuntimeException("❌ Error enviando correo: " + e.getMessage(), e);
+            // Manejar la excepción apropiadamente según tu aplicación
         }
     }
     public void sendEmailWithPdf(String to, String subject, String body, byte[] pdfData, String archivoRuta) {
