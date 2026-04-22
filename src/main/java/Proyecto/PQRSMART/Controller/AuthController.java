@@ -122,6 +122,32 @@ public class AuthController {
 
     }
 
+    @PostMapping("/registerApp")
+    public ResponseEntity<?> registerApp(@RequestBody RegisterRequest request) {
+        try {
+            // Intentar registrar al usuario
+            AuthResponse authResponse = authService.registerApp(request);
+            return ResponseEntity.ok(authResponse);
+        } catch (Exceptions.UserAlreadyExistsException e) {
+            // Manejar usuario duplicado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El usuario ya existe.");
+        } catch (Exceptions.EmailAlreadyExistsException e) {
+            // Manejar email duplicado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El correo electrónico ya está en uso.");
+        } catch (Exceptions.NumberAlreadyExistsException e) {
+            // Manejar número de identificación duplicado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El número ya está registrado.");
+        } catch (Exceptions.IdentificationNumberAlreadyExistsException e) {
+            // Manejar número de identificación duplicado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El número de identificación ya está registrado.");
+        } catch (Exception e) {
+            // Manejar otros errores
+            System.out.println(e + "#############################################################################################################################################################");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor.");
+        }
+
+    }
+
     @GetMapping("/verifyEmail/{token}")
     public ResponseEntity<Void> verifyEmail(@PathVariable String token) {
         HttpHeaders headers = new HttpHeaders();

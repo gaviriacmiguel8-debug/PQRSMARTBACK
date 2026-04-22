@@ -21,10 +21,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-    @EnableWebSecurity
+@EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
-    public class SecurityConfig {
+public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
@@ -32,7 +32,7 @@ import java.util.List;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf(csrf ->csrf.disable())
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilitar CORS
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(publicEndpoinds()).permitAll()
@@ -40,22 +40,23 @@ import java.util.List;
                         .requestMatchers(adminEndpoinds()).hasRole("ADMIN")
                         .requestMatchers(secreEndpoinds()).hasRole("SECRE")
                         .requestMatchers(allEnpoinds()).hasAnyRole("USER", "ADMIN", "SECRE")
-                        .requestMatchers("/api/request/report/**").hasAnyRole("ADMIN","SECRE")
+                        .requestMatchers("/api/request/report/**").hasAnyRole("ADMIN", "SECRE")
 
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(sess ->sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
 
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"
                 // Flutter emulador
-                 )); // Reemplaza con la URL de tu frontend
+        )); // Reemplaza con la URL de tu frontend
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
@@ -65,9 +66,10 @@ import java.util.List;
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-    private RequestMatcher publicEndpoinds(){
+
+    private RequestMatcher publicEndpoinds() {
         return new OrRequestMatcher(
-          new AntPathRequestMatcher("/api/greeting/sayHelloPublic"),
+                new AntPathRequestMatcher("/api/greeting/sayHelloPublic"),
                 new AntPathRequestMatcher("/api/auth/registerUser"),
                 new AntPathRequestMatcher("/api/auth/registerUserApp"),
                 new AntPathRequestMatcher("/api/auth/authenticate"),
@@ -82,15 +84,15 @@ import java.util.List;
         );
     }
 
-    private RequestMatcher userEndpoinds(){
+    private RequestMatcher userEndpoinds() {
         return new OrRequestMatcher(
                 new AntPathRequestMatcher("/api/request/save"),
                 new AntPathRequestMatcher("/api/request/report/**"),
-        new AntPathRequestMatcher("/api/chat/**")
+                new AntPathRequestMatcher("/api/chat/**")
         );
     }
 
-    private RequestMatcher adminEndpoinds(){
+    private RequestMatcher adminEndpoinds() {
         return new OrRequestMatcher(
                 new AntPathRequestMatcher("/api/Usuario/report"),
                 new AntPathRequestMatcher("/api/Usuario/cancel/**"),
@@ -113,17 +115,18 @@ import java.util.List;
                 new AntPathRequestMatcher("/api/category/activate/**"),
                 new AntPathRequestMatcher("/api/category/save"),
                 new AntPathRequestMatcher("/api/category/update"),
-                new AntPathRequestMatcher("/api/auth/register")
+                new AntPathRequestMatcher("/api/auth/register"),
+                new AntPathRequestMatcher("/api/auth/registerApp")
         );
     }
 
-    private RequestMatcher secreEndpoinds(){
+    private RequestMatcher secreEndpoinds() {
         return new OrRequestMatcher(
                 new AntPathRequestMatcher("/api/request/update/**")
         );
     }
 
-    private RequestMatcher allEnpoinds(){
+    private RequestMatcher allEnpoinds() {
         return new OrRequestMatcher(
                 new AntPathRequestMatcher("/api/request/get"),
                 new AntPathRequestMatcher("/api/dependence/get"),
@@ -142,5 +145,5 @@ import java.util.List;
                 new AntPathRequestMatcher("/api/Usuario/initial")
         );
     }
-    }
+}
 
