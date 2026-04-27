@@ -34,6 +34,6 @@ supabase:
     public:
       url: "https://dckjzopndipyyyqroqgt.supabase.co/storage/v1/object/public/pqrs-files/"
 
-resend:
+brevo:
   api:
     key: ${RESEND_API_KEY}
