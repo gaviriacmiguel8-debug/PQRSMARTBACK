@@ -13,9 +13,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import sendinblue.ApiClient;
+import sendinblue.ApiException;
 import sendinblue.Configuration;
 import sibApi.TransactionalEmailsApi;
 import sibModel.SendSmtpEmail;
+import sibModel.SendSmtpEmailAttachment;
 import sibModel.SendSmtpEmailSender;
 import sibModel.SendSmtpEmailTo;
 
@@ -25,6 +27,7 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,7 +99,58 @@ public class EmailServiceImpl implements IEmailService {
             throw new RuntimeException("❌ Error enviando correo: " + e.getMessage(), e);
         }
     }
+
     public void sendEmailWithPdf(String to, String subject, String body, byte[] pdfData, String archivoRuta) {
+        try {
+            ApiClient client = Configuration.getDefaultApiClient();
+            client.setApiKey(brevoApiKey);
+
+            TransactionalEmailsApi api = new TransactionalEmailsApi();
+
+            // Sender
+            SendSmtpEmailSender sender = new SendSmtpEmailSender();
+            sender.setEmail("gaviriacmiguel.8@gmail.com");
+            sender.setName("pqrsmart");
+
+            SendSmtpEmailTo recipient = new SendSmtpEmailTo();
+            recipient.setEmail(to);
+
+            // PDF generado
+            SendSmtpEmailAttachment pdfAttachment = new SendSmtpEmailAttachment();
+            pdfAttachment.setName("solicitud.pdf");
+            pdfAttachment.setContent(pdfData);
+
+            List<SendSmtpEmailAttachment> attachments = new ArrayList<>();
+            attachments.add(pdfAttachment);
+
+            // Archivo de Supabase
+            if (archivoRuta != null && !archivoRuta.isEmpty()) {
+                byte[] archivoBytes = descargarArchivo(archivoRuta);
+                String fileName = archivoRuta.substring(archivoRuta.lastIndexOf("/") + 1)
+                        .replace("%20", " ");
+
+                SendSmtpEmailAttachment archivoAttachment = new SendSmtpEmailAttachment();
+                archivoAttachment.setName(fileName);
+                archivoAttachment.setContent(archivoBytes);
+                attachments.add(archivoAttachment);
+            }
+
+            SendSmtpEmail email = new SendSmtpEmail();
+            email.setSender(sender);
+            email.setTo(List.of(recipient));
+            email.setSubject(subject);
+            email.setHtmlContent(body);
+            email.setAttachment(attachments);
+
+            api.sendTransacEmail(email);
+            System.out.println("✅ Correo con PDF enviado");
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al enviar correo: " + e.getMessage());
+        }
+    }
+
+  /*  public void sendEmailWithPdf(String to, String subject, String body, byte[] pdfData, String archivoRuta) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -125,7 +179,7 @@ public class EmailServiceImpl implements IEmailService {
         } catch (MessagingException e) {
             throw new RuntimeException("Error al enviar correo: " + e.getMessage());
         }
-    }
+    }*/
     public byte[] descargarArchivo(String url) {
         try {
 
