@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PersonTypeRepository extends JpaRepository<PersonType, Long> {
+    PersonType findByNamePersonTypeIgnoreCase(final String namePersonType);
 }

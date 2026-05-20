@@ -1,8 +1,8 @@
 package Proyecto.PQRSMART.Persistence.Entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.stringtemplate.v4.ST;
 
 import java.time.LocalDate;
 
@@ -63,8 +63,22 @@ public class Request {
 
     @Column(name = "Archivo_Respuesta")
     private String archiveAnswer;
+    @Enumerated(EnumType.STRING)
 
+    @Column(name = "Prioridad")
+    private Priority priority;
 
+    @ManyToOne
+    @JoinColumn(name = "Usuario_Asignado")
+    private User assignedUser;
 
+    @Column(name = "Motivo_Rechazo")
+    private String rejectReason;
+
+    @Column(name = "Coherencia_IA")
+    private Boolean aiCoherence;
+
+    @Column(name = "Relevancia")
+    private Double relevance;
 
 }

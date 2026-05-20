@@ -88,7 +88,7 @@ public class SecurityConfig {
         return new OrRequestMatcher(
                 new AntPathRequestMatcher("/api/request/save"),
                 new AntPathRequestMatcher("/api/request/report/**"),
-                new AntPathRequestMatcher("/api/chat/**")
+                new AntPathRequestMatcher("/api/chat/")
         );
     }
 
@@ -116,7 +116,8 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/api/category/save"),
                 new AntPathRequestMatcher("/api/category/update"),
                 new AntPathRequestMatcher("/api/auth/register"),
-                new AntPathRequestMatcher("/api/auth/registerApp")
+                new AntPathRequestMatcher("/api/auth/registerApp"),
+                new AntPathRequestMatcher("/api/chat/user")
         );
     }
 

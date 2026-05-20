@@ -1,6 +1,7 @@
 package Proyecto.PQRSMART.Controller;
 
 
+import Proyecto.PQRSMART.Domain.Dto.AIAnalysisResponse;
 import Proyecto.PQRSMART.Domain.Dto.RequestDTO;
 import Proyecto.PQRSMART.Domain.Dto.RequestStateDTO;
 import Proyecto.PQRSMART.Domain.Dto.UsuarioDto;
@@ -10,6 +11,7 @@ import Proyecto.PQRSMART.Domain.Service.EmailServiceImpl;
 import Proyecto.PQRSMART.Domain.Service.Interfaces.PdfServices;
 import Proyecto.PQRSMART.Domain.Service.Interfaces.RequestServices;
 import Proyecto.PQRSMART.Domain.Service.Interfaces.RequestStateService;
+import Proyecto.PQRSMART.Domain.Service.MCPRequestAnalysisService;
 import Proyecto.PQRSMART.Domain.Service.RequestServicesImpl;
 import Proyecto.PQRSMART.Persistence.Entity.Request;
 import Proyecto.PQRSMART.Persistence.Entity.RequestState;
@@ -54,6 +56,8 @@ public class RequestController {
     @Autowired
     private RequestStateService requestStateService;
 
+    private final MCPRequestAnalysisService mcpRequestAnalysisService;
+
     @Autowired
     private PdfServices pdfServices;
 
@@ -66,53 +70,133 @@ public class RequestController {
 
     @PostMapping("/save")
     public ResponseEntity<String> saveRequest(@RequestBody RequestDTO request) {
-        try{
+        try {
 
-        // Obtenemos el usuario autenticado
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        // Buscamos el usuario en la base de datos
+            // Obtenemos el usuario autenticado
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            // Buscamos el usuario en la base de datos
 
             User user = userRepository.findByUser(userDetails.getUsername());
 
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario no encontrado");
-        }
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario no encontrado");
+            }
 
 
+            // Creamos la solicitud
+            request.setUser(UsuarioMapper.toDto(user));
 
-        // Creamos la solicitud
-        request.setUser(UsuarioMapper.toDto(user));
+            Request requestEntity =
+                    RequestMapper.toEntity(request);
+
+            requestEntity.setUser(user);
+
+            AIAnalysisResponse aiResponse =
+                    mcpRequestAnalysisService.analyze(requestEntity);
+
+            if (!Boolean.TRUE.equals(aiResponse.getValid())) {
+                String html = """
+                        <html>
+                        <body style='font-family:Arial;padding:20px;'>
+                        
+                        <h2 style='color:#d32f2f;'>Solicitud PQRS Rechazada</h2>
+                        
+                        <p>Estimado usuario,</p>
+                        
+                        <p>Su solicitud fue revisada y presenta las siguientes novedades:</p>
+                        
+                        <div style='background:#f5f5f5;padding:15px;border-radius:10px;'>
+                            <b>Motivo:</b>
+                            <p>%s</p>
+                        
+                        
+                        </div>
+                        
+                        <p>
+                        Puede corregir la información y volver a enviar la solicitud.
+                        </p>
+                        
+                        <hr>
+                        
+                        <p style='font-size:12px;color:gray;'>
+                        Sistema PQRSMART
+                        </p>
+                        
+                        </body>
+                        </html>
+                        """.formatted(aiResponse.getReason());
+                // Enviar correo rechazo
+                emailService.sendEmails(
+                        new String[]{user.getEmail()},
+                        "Solicitud rechazada",
+                        html
+
+                );
+
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(aiResponse.getReason());
+            }
+            User assignedUser =
+                    userRepository.findById(
+                            aiResponse.getAssignedUserId()
+                    ).orElseThrow(() ->
+                            new RuntimeException(
+                                    "Usuario asignado no encontrado"
+                            )
+                    );
+            // 7. ASIGNAR DATOS IA
+            // ============================
+
+            requestEntity.setPriority(
+                    aiResponse.getPriority()
+            );
+
+            requestEntity.setAiCoherence(
+                    aiResponse.getCoherence()
+            );
+
+            requestEntity.setRelevance(
+                    aiResponse.getRelevance()
+            );
+
+            requestEntity.setRejectReason(
+                    aiResponse.getReason()
+            );
+
+            requestEntity.setAssignedUser(
+                    assignedUser
+            );
 
             // Guardar solicitud usando el servicio
-            RequestDTO  savedRequest = requestServices.saves(request);
-            Request  requests = requestServices.findEntityByIds(request);
+            RequestDTO savedRequest = requestServices.saves(RequestMapper.toDTO(requestEntity));
+            Request requests = requestServices.findEntityByIds(request);
             Optional<Request> searchRequest = requestServices.findEntityById(savedRequest.getIdRequest());
 
             Request requestAll;
             String requestJson;
-                if (searchRequest.isPresent()) {
-                    // Convertir la solicitud guardada a JSON y devolverla
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.registerModule(new JavaTimeModule());
-                    requestAll = searchRequest.get();
-                    requestAll.setUser(user);
-                    requestAll.setRequestType(requests.getRequestType());
-                    requestAll.setCategory(requests.getCategory());
-                    requestAll.setDependence(requests.getDependence());
-                    requestAll.setRequestState(requests.getRequestState());
-                    System.out.println("empieza " + requestAll);
-                    requestJson = mapper.writeValueAsString(requestAll);
+            if (searchRequest.isPresent()) {
+                // Convertir la solicitud guardada a JSON y devolverla
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.registerModule(new JavaTimeModule());
+                requestAll = searchRequest.get();
+                requestAll.setUser(user);
+                requestAll.setRequestType(requests.getRequestType());
+                requestAll.setCategory(requests.getCategory());
+                requestAll.setDependence(requests.getDependence());
+                requestAll.setRequestState(requests.getRequestState());
+                RequestDTO responseDto = RequestMapper.toDTO(requestAll);
+                requestJson = mapper.writeValueAsString(responseDto);
 
 
-
-                } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Solicitud no encontrada");
-                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Solicitud no encontrada");
+            }
 
             byte[] pdf = pdfServices.generarPdfSolicitud(user, requestAll);
 
-                System.out.println("archivo url: "+ request.getArchivo());
+            System.out.println("archivo url: " + request.getArchivo());
 
             emailService.sendEmailWithPdf(
                     user.getEmail(),
@@ -167,7 +251,7 @@ public class RequestController {
     }
 
     @PutMapping(value = "/update/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody RequestDTO requestDTO ) throws IOException {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody RequestDTO requestDTO) throws IOException {
         Optional<RequestDTO> requestDTOOptional = requestServices.findById(id);
         if (requestDTOOptional.isPresent()) {
             RequestDTO existingRequest = requestDTOOptional.get();

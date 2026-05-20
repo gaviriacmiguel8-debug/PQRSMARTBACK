@@ -19,6 +19,10 @@ public class RequestMapper {
         request.setMediumAnswer(dto.getMediumAnswer());
         request.setArchivo(dto.getArchivo());
         request.setArchiveAnswer(dto.getArchiveAnswer());
+        request.setAiCoherence(dto.getAiCoherence());
+        request.setPriority(dto.getPriority());
+        request.setRelevance(dto.getRelevance());
+        request.setRejectReason(dto.getRejectReason());
 
         // 🔥 Relaciones SOLO con ID (sin traer toda la entidad)
 
@@ -26,6 +30,11 @@ public class RequestMapper {
             User user = new User();
             user.setId(dto.getUser().getId());
             request.setUser(user);
+        }
+        if (dto.getAssignedUser() != null) {
+            User user = new User();
+            user.setId(dto.getAssignedUser().getId());
+            request.setAssignedUser(user);
         }
 
         if (dto.getRequestType() != null) {
@@ -69,6 +78,11 @@ public class RequestMapper {
         dto.setMediumAnswer(request.getMediumAnswer());
         dto.setArchivo(request.getArchivo());
         dto.setArchiveAnswer(request.getArchiveAnswer());
+        dto.setAiCoherence(request.getAiCoherence());
+        dto.setPriority(request.getPriority());
+        dto.setRelevance(request.getRelevance());
+        dto.setRejectReason(request.getRejectReason());
+
 
         // 🔥 Convertimos Entity → DTO correctamente
 
@@ -78,6 +92,15 @@ public class RequestMapper {
                             .id(request.getUser().getId())
                             .user(request.getUser().getUsername())
                             .email(request.getUser().getEmail())
+                            .build()
+            );
+        }
+        if (request.getAssignedUser() != null) {
+            dto.setAssignedUser(
+                    UsuarioDto.builder()
+                            .id(request.getAssignedUser().getId())
+                            .user(request.getAssignedUser().getUsername())
+                            .email(request.getAssignedUser().getEmail())
                             .build()
             );
         }

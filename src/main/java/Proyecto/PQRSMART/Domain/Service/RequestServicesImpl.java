@@ -50,6 +50,7 @@ public class RequestServicesImpl implements RequestServices {
 
         return requestRepository.findAll().stream().map(RequestMapper::toDTO).collect(Collectors.toList());
     }
+
     public List<RequestDTO> getForDependence() {
         try {
             UserDetails userDetails = (UserDetails) SecurityContextHolder
@@ -73,6 +74,7 @@ public class RequestServicesImpl implements RequestServices {
             throw new RuntimeException("Error al obtener las solicitudes: " + e.getMessage());
         }
     }
+
     @Transactional(readOnly = true)
     public List<RequestDTO> getPqrs(String usurious) {
 
@@ -125,6 +127,7 @@ public class RequestServicesImpl implements RequestServices {
 
                 .build();
     }
+
     public void update(RequestDTO requestDTO) {
         Request request = RequestMapper.toEntity(requestDTO);
         requestRepository.save(request);
@@ -189,10 +192,12 @@ public class RequestServicesImpl implements RequestServices {
 
         return RequestMapper.toDTO(saved);
     }
+
     public byte[] generateReport(List<Request> pqrsDelMes, int anio) {
 
         return pdfServices.generateReport(pqrsDelMes, anio);
     }
+
     public List<Request> getByMonth(int year, int month) {
 
         LocalDate startDate = LocalDate.of(year, month, 1);
@@ -200,6 +205,7 @@ public class RequestServicesImpl implements RequestServices {
 
         return requestRepository.findByDateBetween(startDate, endDate);
     }
+
     private String letraPorTipoSolicitud(Long requestTypeId) {
         return switch (requestTypeId.intValue()) {
             case 1 -> "P"; // Petición

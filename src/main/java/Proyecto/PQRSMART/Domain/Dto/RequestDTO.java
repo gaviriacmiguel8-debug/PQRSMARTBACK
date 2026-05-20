@@ -1,6 +1,11 @@
 package Proyecto.PQRSMART.Domain.Dto;
 
 
+import Proyecto.PQRSMART.Persistence.Entity.Priority;
+import Proyecto.PQRSMART.Persistence.Entity.User;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -24,5 +29,10 @@ public class RequestDTO {
     private String archivo;
     private String archiveAnswer;
     private String radicado;
+    private Priority priority;
+    private UsuarioDto assignedUser;
+    private String rejectReason;
+    private Boolean aiCoherence;
+    private Double relevance;
 
 }

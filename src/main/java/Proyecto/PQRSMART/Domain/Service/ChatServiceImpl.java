@@ -1,6 +1,8 @@
 package Proyecto.PQRSMART.Domain.Service;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,8 +36,22 @@ public class ChatServiceImpl implements ChatService {
 
 //    private final ChatClient chatClient;
 
-    @Value("${groq.api-key}")
+    @Value("${spring.ai.openai.api-key}")
     private String apiKey;
+
+    private WebClient webClient;
+
+    @PostConstruct
+    public void init() {
+        this.webClient = WebClient.builder()
+                .baseUrl("https://api.groq.com/openai/v1")
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                .build();
+
+        System.out.println("API KEY: " + apiKey);
+    }
+
     public String preguntarIA(String mensaje) {
         RestTemplate restTemplate = new RestTemplate();
         String prompt = """
@@ -60,7 +77,7 @@ public class ChatServiceImpl implements ChatService {
                 
                 Usuario: """ + mensaje;
 
-return "";
+        return "";
 //        return chatClient.prompt()
 //                .user(prompt)
 //                .call()
@@ -69,85 +86,36 @@ return "";
     }
 
 
-//    public String chat(ChatRequest request) {
-//        try {
-//            List<String> conversation = new ArrayList<>();
-//
-//            for (var msg : request.getMessages()) {
-//                conversation.add(msg.getRole() + ": " + msg.getContent());
-//            }
-//
-//            String fullPrompt = """
-//                    Eres un asistente experto en PQRS en Colombia.
-//
-//                    Funciones:
-//                    - Redactar quejas, reclamos, peticiones y sugerencias
-//                    - Explicar conceptos
-//                    - Mejorar textos
-//
-//                    Reglas:
-//                    - Responder SIEMPRE de forma formal
-//                    - No inventar información
-//                    - Si falta información, solicitarla
-//
-//                    Estructura obligatoria:
-//                    - Encabezado
-//                    - Hechos
-//                    - Solicitud
-//                    - Despedida
-//
-//                    y no pidas informacion personal nada de nombre, identificacion ni nada de eso ya que en la peticion ya va incluida
-//
-//                    Si la solicitud no es de PQRS, indícalo claramente.
-//                    """ + String.join("\n", conversation) + "\nRespuesta:";
-//
-//            return chatClient.prompt()
-//                    .user(fullPrompt)
-//                    .call()
-//                    .content();
-//        } catch (Exception e) {
-//            return e.toString();
-//        }
-//    }
-
-
-
     public String chat(ChatRequest request) {
+        System.out.println(apiKey);
         try {
-
-            WebClient webClient = WebClient.builder()
-                    .baseUrl("https://api.groq.com/openai/v1")
-                    .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-                    .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                    .build();
-
             List<Map<String, String>> messages = new ArrayList<>();
 
             // 🔥 TU PROMPT AQUÍ (system)
             messages.add(Map.of(
                     "role", "system",
                     "content", """
-                        Eres un asistente experto en PQRS en Colombia.
-
-                        Funciones:
-                        - Redactar quejas, reclamos, peticiones y sugerencias
-                        - Explicar conceptos
-                        - Mejorar textos
-
-                        Reglas:
-                        - Responder SIEMPRE de forma formal
-                        - No inventar información
-                        - Si falta información, solicitarla
-                        - NO pedir datos personales
-
-                        Estructura obligatoria:
-                        - Encabezado
-                        - Hechos
-                        - Solicitud
-                        - Despedida
-
-                        Si la solicitud no es de PQRS, indícalo claramente.
-                        """
+                            Eres un asistente experto en PQRS en Colombia.
+                            
+                            Funciones:
+                            - Redactar quejas, reclamos, peticiones y sugerencias
+                            - Explicar conceptos
+                            - Mejorar textos
+                            
+                            Reglas:
+                            - Responder SIEMPRE de forma formal
+                            - No inventar información
+                            - Si falta información, solicitarla
+                            - NO pedir datos personales(ni nombres, numero, identificcion nada ya que el sistema donde esta haciendo la peticion ya los tiene)
+                            
+                            Estructura obligatoria:
+                            - Encabezado
+                            - Hechos
+                            - Solicitud
+                            - Despedida
+                            
+                            Si la solicitud no es de PQRS, indícalo claramente.
+                            """
             ));
 
             // 👇 Conversación del usuario
@@ -183,9 +151,11 @@ return "";
             return "Error: " + e.getMessage();
         }
     }
+
     private String truncate(String text) {
         int max = 1000; // caracteres
         return text.length() > max ? text.substring(0, max) : text;
     }
+
 
 }
